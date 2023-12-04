@@ -38,13 +38,15 @@ def duplicated_objects_validating_command():
     objs_dict = {}
     scene_dag_nodes = cmds.ls(dagObjects=True, transforms=True)
     for nodes in scene_dag_nodes:
-        splitting = nodes.split("|")
-        if len(splitting) > 1:
-            root_node = splitting[-1]
-            if root_node not in objs_dict:
-                objs_dict[root_node] = [nodes]
-            else:
-                objs_dict[root_node].append(nodes)
+        # check if that node is a group, if yes, then skip
+        if cmds.listRelatives(nodes, shapes=True) is not None:
+            splitting = nodes.split("|")
+            if len(splitting) > 1:
+                root_node = splitting[-1]
+                if root_node not in objs_dict:
+                    objs_dict[root_node] = [nodes]
+                else:
+                    objs_dict[root_node].append(nodes)
     
     return(objs_dict)
 
