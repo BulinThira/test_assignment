@@ -110,8 +110,31 @@ class ObjectListWidget(QListWidget):
             return
         selected_items = self.selectedItems()
         for item in selected_items:
-            duplicated_objects_validator_utils.rename_duplicateds(item.text(), item.item_name())
-            self.takeItem(self.currentRow())
+            rename_command = duplicated_objects_validator_utils.rename_duplicateds(item.text(), item.item_name())
+            self.takeItem(self.row(item))
+            if rename_command is True:
+                self.update_item()
+                # logger.warning("The process is temporarily paused due to naming complication.")
+                # break
+    
+    def update_item(self):
+        """
+        update item (objs name) in case name of parent nodes name are changed
+        """
+        objects_dict = duplicated_objects_validator_utils.duplicated_objects_validating_command()
+        # logger.info(objects_dict)
+        self_items = []
+        # all_items = [self.item(index) for index in range(self.count())]
+        for index in range(self.count()-1):
+            self_items.append(self.item(index).text())
+        # logger.info(self_items)
+        if bool(objects_dict):
+            for key, values in objects_dict.items():
+                current_index = 0
+                for member in self_items:
+                    if member == key:
+                        self.item(current_index).update_item(values)
+                        current_index += 1
 
 
 class ObjectListWidgetItem(QListWidgetItem):
@@ -136,6 +159,14 @@ class ObjectListWidgetItem(QListWidgetItem):
             str: name of actual object's name
         """
         return(self.obj_item)
+    
+    def update_item(self, name=""):
+        """
+        update obj_item
+        Args:
+            name (str): name of update objects
+        """
+        self.obj_item = name
     
 def run():
     """

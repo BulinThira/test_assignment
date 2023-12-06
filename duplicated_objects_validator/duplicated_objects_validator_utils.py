@@ -47,16 +47,30 @@ def duplicated_objects_validating_command():
                     objs_dict[root_node] = [nodes]
                 else:
                     objs_dict[root_node].append(nodes)
+        # print(nodes.split("|"))
+    sorted_dict = {key: sorted(value, key=len, reverse=True) for key, value in objs_dict.items()}
+    print(sorted_dict)
     
-    return(objs_dict)
+    return(sorted_dict)
 
 def rename_duplicateds(root_name="", name_list=[]):
+    """
+    main function for rename duplicateds
+
+    Args:
+        root_name (str): root name (as appeared in the ListWidget)
+        name_list (list): list of referred nodes
+    """
+    command_fix = False
     ordering = 1
     for member in name_list:
+        if len(cmds.listRelatives(member, allDescendents=True)) > 0:
+            command_fix = True
         actual_ordering = (str(ordering)).zfill(3)
         new_name = root_name + "_" + actual_ordering
         cmds.rename(member, new_name)
         ordering += 1
+    return(command_fix)
 
 def simple_objs_selection(objs_list=[]):
     """
